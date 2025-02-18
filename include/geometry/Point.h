@@ -23,6 +23,10 @@ public:
     Point &operator-=(const Point &rhs) noexcept;
     Point &operator*=(double scalar) noexcept;
     Point &operator/=(double scalar);
+
+    [[nodiscard]] constexpr float magnitude_squared() const noexcept {
+        return x*x + y*y + z*z;
+    }
 };
 
 // Stream operator
