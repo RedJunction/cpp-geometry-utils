@@ -26,7 +26,8 @@ public:
     Point direction() const;
 
     [[nodiscard]]
-    constexpr Point midpoint() const noexcept;
+    Point midpoint() const noexcept;
+    
     [[nodiscard]]
     bool contains(const Point &point, float epsilon = 1e-6f) const noexcept;
 
@@ -81,8 +82,13 @@ public:
 };
 
 // Comparison operators
-[[nodiscard]] constexpr bool operator==(const Line &lhs, const Line &rhs) noexcept;
-[[nodiscard]] constexpr bool operator!=(const Line &lhs, const Line &rhs) noexcept;
+[[nodiscard]] constexpr bool operator==(const Line &lhs, const Line &rhs) noexcept {
+    return (lhs.start == rhs.start) && (lhs.end == rhs.end);
+}
+
+[[nodiscard]] constexpr bool operator!=(const Line &lhs, const Line &rhs) noexcept {
+    return !(lhs == rhs);
+}
 
 // Stream operator
 std::ostream &operator<<(std::ostream &os, const Line &line);
@@ -100,22 +106,12 @@ inline Point Line::direction() const
     return vec.normalized();
 }
 
-constexpr Point Line::midpoint() const noexcept
+inline Point Line::midpoint() const noexcept
 {
     return Point{
         (start.x + end.x) * 0.5f,
         (start.y + end.y) * 0.5f,
         (start.z + end.z) * 0.5f};
-}
-
-constexpr bool operator==(const Line &lhs, const Line &rhs) noexcept
-{
-    return (lhs.start == rhs.start) && (lhs.end == rhs.end);
-}
-
-constexpr bool operator!=(const Line &lhs, const Line &rhs) noexcept
-{
-    return !(lhs == rhs);
 }
 
 inline std::ostream &operator<<(std::ostream &os, const Line &line)
@@ -250,8 +246,7 @@ inline Point Line::bezier_interpolate(const Point &p0, const Point &p1,
                                       const Point &p2, const Point &p3,
                                       float t) noexcept
 {
-    const Point q0 = bezier_interpolate(p0, p1, t);
-    const Point q1 = bezier_interpolate(p1, p2, t);
-    const Point q2 = bezier_interpolate(p2, p3, t);
-    return bezier_interpolate(q0, q1, q2, t);
+    const Point q0 = bezier_interpolate(p0, p1, p2, t);
+    const Point q1 = bezier_interpolate(p1, p2, p3, t);
+    return bezier_interpolate(q0, q1, t);
 }

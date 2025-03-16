@@ -17,7 +17,8 @@ public:
     double magnitude() const noexcept;
 
     [[nodiscard]]
-    Point normalized() const noexcept;
+    Point normalized() const;
+    
     // Arithmetic operators
     Point &operator+=(const Point &rhs) noexcept;
     Point &operator-=(const Point &rhs) noexcept;
@@ -33,19 +34,32 @@ public:
 std::ostream &operator<<(std::ostream &os, const Point &p);
 
 // Arithmetic operators
-[[nodiscard]] constexpr Point operator+(Point lhs, const Point &rhs) noexcept;
-[[nodiscard]] constexpr Point operator-(Point lhs, const Point &rhs) noexcept;
-[[nodiscard]] constexpr Point operator*(Point p, double scalar) noexcept;
-[[nodiscard]] constexpr Point operator*(double scalar, Point p) noexcept;
+[[nodiscard]] Point operator+(Point lhs, const Point &rhs) noexcept;
+[[nodiscard]] Point operator-(Point lhs, const Point &rhs) noexcept;
+[[nodiscard]] Point operator*(Point p, double scalar) noexcept;
+[[nodiscard]] Point operator*(double scalar, Point p) noexcept;
 [[nodiscard]] Point operator/(Point p, double scalar);
 
 // Comparison operators
-[[nodiscard]] constexpr bool operator==(const Point &lhs, const Point &rhs) noexcept;
-[[nodiscard]] constexpr bool operator!=(const Point &lhs, const Point &rhs) noexcept;
+[[nodiscard]] constexpr bool operator==(const Point &lhs, const Point &rhs) noexcept {
+    return lhs.x == rhs.x && lhs.y == rhs.y && lhs.z == rhs.z;
+}
+
+[[nodiscard]] constexpr bool operator!=(const Point &lhs, const Point &rhs) noexcept {
+    return !(lhs == rhs);
+}
 
 // Vector operations
-[[nodiscard]] constexpr double dot_product(const Point &a, const Point &b) noexcept;
-[[nodiscard]] constexpr Point cross_product(const Point &a, const Point &b) noexcept;
+[[nodiscard]] constexpr double dot_product(const Point &a, const Point &b) noexcept {
+    return a.x * b.x + a.y * b.y + a.z * b.z;
+}
+
+[[nodiscard]] constexpr Point cross_product(const Point &a, const Point &b) noexcept {
+    return Point{
+        a.y * b.z - a.z * b.y,
+        a.z * b.x - a.x * b.z,
+        a.x * b.y - a.y * b.x};
+}
 
 // ===== Implementation =====
 inline double Point::distance_to(const Point &other) const noexcept
@@ -104,52 +118,38 @@ inline Point &Point::operator/=(double scalar)
     return *this *= (1.0 / scalar);
 }
 
-constexpr Point operator+(Point lhs, const Point &rhs) noexcept
+inline Point operator+(Point lhs, const Point &rhs) noexcept
 {
-    return lhs += rhs;
+    lhs += rhs;
+    return lhs;
 }
 
-constexpr Point operator-(Point lhs, const Point &rhs) noexcept
+inline Point operator-(Point lhs, const Point &rhs) noexcept
 {
-    return lhs -= rhs;
+    lhs -= rhs;
+    return lhs;
 }
 
-constexpr Point operator*(Point p, double scalar) noexcept
+inline Point operator*(Point p, double scalar) noexcept
 {
-    return p *= scalar;
+    p *= scalar;
+    return p;
 }
 
-constexpr Point operator*(double scalar, Point p) noexcept
+inline Point operator*(double scalar, Point p) noexcept
 {
-    return p *= scalar;
+    p *= scalar;
+    return p;
 }
 
 inline Point operator/(Point p, double scalar)
 {
-    return p /= scalar;
-}
-
-constexpr bool operator==(const Point &lhs, const Point &rhs) noexcept
-{
-    return lhs.x == rhs.x && lhs.y == rhs.y && lhs.z == rhs.z;
-}
-
-constexpr bool operator!=(const Point &lhs, const Point &rhs) noexcept
-{
-    return !(lhs == rhs);
-}
-
-constexpr double dot_product(const Point &a, const Point &b) noexcept
-{
-    return a.x * b.x + a.y * b.y + a.z * b.z;
-}
-
-constexpr Point cross_product(const Point &a, const Point &b) noexcept
-{
-    return Point{
-        a.y * b.z - a.z * b.y,
-        a.z * b.x - a.x * b.z,
-        a.x * b.y - a.y * b.x};
+    if (scalar == 0.0)
+    {
+        throw std::runtime_error("Division by zero in operator/");
+    }
+    p /= scalar;
+    return p;
 }
 
 inline std::ostream &operator<<(std::ostream &os, const Point &p)
